@@ -1,0 +1,21 @@
+{
+	"name": "addenv-cli",
+	"version": "0.0.1",
+	"description": "Expands environment variables in command line parameters, then executes the command.",
+	"keywords": [
+		"expand",
+		"environment variable",
+		"command line",
+		"execute"
+	],
+	"author": "András Parditka",
+	"homepage": "https://github.com/andraaspar/addenv-cli",
+	"repository": "andraaspar/addenv-cli",
+	"license": "MIT",
+	"engines": {
+		"node": ">=0.12"
+	},
+	"bin": {
+		"addenv": "index.js"
+	}
+}
