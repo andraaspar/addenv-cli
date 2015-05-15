@@ -1,6 +1,12 @@
 # addenv-cli
 Expands environment variables in command line parameters, then executes the command.
 
+## Installation
+
+```
+npm install addenv-cli --save-dev
+```
+
 ## Usage
 
 Useful when using npm as a build tool.
@@ -10,14 +16,14 @@ Useful when using npm as a build tool.
 {
 	"private": true,
 	"devDependencies": {
-		"addenv-cli": "^0.0.1"
+		"addenv-cli": "^0.1.0"
 	},
 	"config": {
-		"foo": "${bar}",
+		"foo": "\"{{bar}}\"",
 		"bar": "baz"
 	},
 	"scripts": {
-		"build": "addenv echo Foo expands to: ${foo}"
+		"build": "addenv \"echo Foo expands to: {{foo}}\""
 	}
 }
 ```
@@ -27,5 +33,10 @@ npm run build
 ```
 ### Output:
 ```
-Foo expands to: baz
+Foo expands to: "baz"
 ```
+## History
+
+- 0.1.0: Changed syntax to `{{var}}` to avoid native variable expansion;
+  Added `"` escaping.
+- 0.0.1: Initial version

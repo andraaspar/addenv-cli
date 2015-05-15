@@ -1,6 +1,6 @@
 {
 	"name": "addenv-cli",
-	"version": "0.0.1",
+	"version": "0.1.0",
 	"description": "Expands environment variables in command line parameters, then executes the command.",
 	"keywords": [
 		"expand",
