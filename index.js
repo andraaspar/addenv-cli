@@ -1,17 +1,33 @@
 #! /usr/bin/env node
 
 'use strict';
-var exec = require('child_process').exec;
+var spawn = require('child_process').spawn;
+var fixArgsOnWindows = require('node_issue_25339_workaround');
 
-var ESCAPE_CHAR = process.platform.indexOf('win') == 0 ? '"' : '\\';
-var ESCAPE_CHAR_RE = process.platform.indexOf('win') == 0 ? ESCAPE_CHAR : '\\' + ESCAPE_CHAR;
+var sh, shFlag, escapeChar, escapeCharRe, args;
+ 
+args = fixArgsOnWindows(process.argv);
+
+if (process.platform.indexOf('win') == 0) {
+	sh = 'cmd';
+	shFlag = '/c';
+	escapeChar = '"';
+	escapeCharRe = escapeChar;
+} else {
+	sh = 'sh';
+	shFlag = '-c';
+	escapeChar = '\\';
+	escapeCharRe = '\\' + escapeChar;
+}
 
 // console.log('addenv executing:\n' + getCommand());
-exec(getCommand(), onChildProcess);
+spawn(sh, [shFlag, getCommand()], {
+	stdio: 'inherit'
+});
 
 function getCommand() {
 	// Remove ‘node’ and ‘index.js’ from args & join
-	var cmd = process.argv.slice(2).join(' '),
+	var cmd = args.slice(2).join(' '),
 		newCmd = cmd;
 	do {
 		cmd = newCmd;
@@ -25,7 +41,7 @@ function expandEnv(match, name, offset, src) {
 	if (r) {
 		var level = 0;
 		var escapesCount = getEscapesCountForLevel(level);
-		src.slice(0, offset).replace(new RegExp('(' + ESCAPE_CHAR_RE + '*)"', 'g'), function(matchedQuote, escapes) {
+		src.slice(0, offset).replace(new RegExp('(' + escapeCharRe + '*)"', 'g'), function(matchedQuote, escapes) {
 			if (escapes.length == escapesCount) {
 				escapesCount = getEscapesCountForLevel(++level);
 			} else if (escapes.length < escapesCount) {
@@ -34,7 +50,7 @@ function expandEnv(match, name, offset, src) {
 			return matchedQuote;
 		});
 		for (var i = 0; i < level; i++) {
-			r = r.replace(new RegExp('[' + ESCAPE_CHAR_RE + '"]', 'g'), ESCAPE_CHAR + '$&');
+			r = r.replace(new RegExp('[' + escapeCharRe + '"]', 'g'), escapeChar + '$&');
 		}
 	} else {
 		r = match;
@@ -44,10 +60,4 @@ function expandEnv(match, name, offset, src) {
 
 function getEscapesCountForLevel(n) {
 	return Math.pow(2, n) - 1;
-}
-
-function onChildProcess(error, stdout, stderr) {
-	process.stdout.write(stdout);
-	process.stderr.write(stderr);
-	if (error) process.exit(1);
 }
